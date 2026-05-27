@@ -3,7 +3,10 @@
 With this we aim to implement Michael and Scott's non-blocking concurrent queue algorithm
 
 - paper: [here](http://dl.acm.org/doi/epdf/10.1145/248052.248106)
-- reference implementation: [ahrav/go-lockfree-queue](https://github.com/ahrav/go-lockfree-queue/)
+
+## Credits
+
+Huge thanks to [**Ahrav**](https://github.com/ahrav) for their outstanding reference implementation [go-lockfree-queue](https://github.com/ahrav/go-lockfree-queue/). This project was built by studying and learning from their excellent work — all credit for the core implementation approach goes to them.
 
 ## Personal notes
 
