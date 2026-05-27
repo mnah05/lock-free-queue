@@ -13,8 +13,9 @@ type Node[T any] struct {
 type hazardPtr[T any] struct{ ptr atomic.Pointer[Node[T]] } //each pointer targets a node
 
 // hazardTable manages all hazard pointers.
-type hazardTable[T any] struct{ pointers []hazardPtr[T] } // a hash table to get node a space to check its availability
+type hazardTable[T any] struct{ pointers []hazardPtr[T] } // each slot holds a node reference a thread is currently using
 
+// NewHazarTable allocates a fixed-size hazard pointer table.
 func NewHazarTable[T any]() *hazardTable[T] {
 	maxHazardPointers := 2 * runtime.GOMAXPROCS(0) * 2 // 2 pointers per thread + buffer
 	return &hazardTable[T]{pointers: make([]hazardPtr[T], maxHazardPointers)}

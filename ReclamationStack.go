@@ -2,11 +2,10 @@ package queue
 
 import "sync/atomic"
 
-//Reclamation stack is a place to store retired nodes which are released but can
-//still be read
-//so instead of freeing them instantly we store in a stack
-//periodically a function will run and ensure that when no thread is accessing
-//a node it will get back to node pool :)
+// ReclamationStack stores retired nodes that have been logically removed
+// from the queue but may still be referenced by other threads via hazard pointers.
+// Instead of freeing them immediately we push them here.
+// A cleanup routine will free nodes that no hazard pointer targets.
 
 type ReclamationStack[T any] struct {
 	head atomic.Pointer[Node[T]] // top of the stack
