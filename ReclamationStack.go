@@ -36,6 +36,6 @@ func (s *ReclamationStack[T]) Pop() *Node[T] {
 		if s.head.CompareAndSwap(oldHead, oldHead.Next.Load()) {
 			return oldHead // successfully removed, return it
 		}
-		//CAS failes so retry
+		// CAS fails so retry
 	}
 }
