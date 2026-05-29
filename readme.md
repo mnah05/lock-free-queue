@@ -10,8 +10,11 @@ Huge thanks to [**Ahrav**](https://github.com/ahrav) for their outstanding refer
 
 ## Personal notes
 
-- Tail only moves forward on writes (enqueue) — it always chases the latest inserted node.
-- Head only moves forward on reads (dequeue) — it advances one step every time a value is consumed.
-
-Since enqueue and dequeue touch different ends, they can now run truly in parallel. A producer and consumer never block each other — only producer vs producer, or consumer vs consumer contend.
-This is simpler than the lock-free version and already a massive improvement over a single lock. But it still blocks — if two producers race, one waits. The non-blocking version eliminates even that.
+- A dummy node sits at head so tail never lags behind head on an empty queue.
+- Enqueue: protect tail with a hazard pointer, CAS the new node onto `tail.Next`, then advance tail.
+- Dequeue: protect head and its next with two hazard pointers. If head == tail and next is nil → empty. Otherwise CAS head forward to skip the old dummy and defer it for reclamation.
+- Enqueue and dequeue touch different ends so they never block each other — only producer vs producer or consumer vs consumer contend.
+- Hazard pointers: a fixed-size table of slots. `Acquire` grabs a free slot, `Release` clears it. Dequeue takes two slots to protect both head and its next during the CAS.
+- Reclamation stack: a Treiber stack that stores retired (logically removed) nodes.
+- Cleanup runs periodically as a two-pass process — first pass separates safe nodes (return to pool) from hazardous ones (still referenced); second pass pushes hazardous ones back to the reclaim stack.
+- Nodes are pre-allocated into a `sync.Pool`, retrieved by `getNode`, and returned to the pool after cleanup confirms they're safe.
